@@ -4,22 +4,24 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView text; // h1 do to-do
-    private EditText taskInput; // input
-    private Button taskSubmit; // button to add task
-    private TextView task; // view the task
-
-    Task t1, t2;
+    private RecyclerView recyclerView;
+    private TaskAdapter taskAdapter;
+    private ArrayList<Task> taskList;
+    private EditText taskInput;
+    private Button taskSubmit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,24 +34,25 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        text = findViewById(R.id.text1);
-        text.setText("Hello android to-do!");
-
         taskInput = findViewById(R.id.taskInput);
-
         taskSubmit = findViewById(R.id.taskSubmit);
 
-        task = findViewById(R.id.task);
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-
-        t1 = new Task("Workout");
-        t2 = new Task("Wash dishes");
-
+        taskList = new ArrayList<>();
+        taskAdapter = new TaskAdapter(taskList);
+        recyclerView.setAdapter(taskAdapter);
     }
 
     public void addTask(View view) {
-        task.setText(taskInput.getText());
-        taskInput.setText("");
-    }
+        String description = taskInput.getText().toString();
 
+        if (!description.isEmpty()) {
+            Task newTask = new Task(description);
+            taskList.add(newTask);
+            taskAdapter.notifyItemInserted(taskList.size() - 1);
+            taskInput.setText("");
+        }
+    }
 }
