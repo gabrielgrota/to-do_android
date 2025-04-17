@@ -15,6 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
@@ -23,11 +27,18 @@ public class MainActivity extends AppCompatActivity {
     private EditText taskInput;
     private Button taskSubmit;
 
+    private FirebaseFirestore db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+        // inicializar firebase
+        FirebaseApp.initializeApp(this);
         setContentView(R.layout.activity_main);
+
+        db = FirebaseFirestore.getInstance();
+
+        EdgeToEdge.enable(this);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -43,16 +54,29 @@ public class MainActivity extends AppCompatActivity {
         taskList = new ArrayList<>();
         taskAdapter = new TaskAdapter(taskList);
         recyclerView.setAdapter(taskAdapter);
+
+
     }
 
     public void addTask(View view) {
-        String description = taskInput.getText().toString();
+        String text = taskInput.getText().toString();
 
-        if (!description.isEmpty()) {
-            Task newTask = new Task(description);
-            taskList.add(newTask);
-            taskAdapter.notifyItemInserted(taskList.size() - 1);
-            taskInput.setText("");
+        if (!text.isEmpty()) {
+            Task newTask = new Task(text);
+            newTask.setCompleted(false);
+
+            db.collection("tasks")
+                    .add(newTask)
+                    .addOnSuccessListener(documentReference -> {
+
+                        taskList.add(newTask);
+                        taskAdapter.notifyItemInserted(taskList.size() - 1);
+                        taskInput.setText("");
+                    })
+                    .addOnFailureListener(e -> {
+                        e.printStackTrace();
+                        // pode mostrar toast de erro
+                    });
         }
     }
 }
