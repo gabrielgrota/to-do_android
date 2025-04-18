@@ -17,7 +17,7 @@ public class Task {
         return text;
     }
 
-    public void setText(String description) {
+    public void setText(String text) {
         this.text = text;
     }
 

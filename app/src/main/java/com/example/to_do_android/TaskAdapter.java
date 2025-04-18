@@ -48,6 +48,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             // toast
             Toast.makeText(holder.itemView.getContext(), "Editar: " + currentTask.getText(), Toast.LENGTH_SHORT).show();
         });
+
+        Log.d("TaskAdapter", "Task text: " + currentTask.getText());
+
     }
 
     // quantos itens a lista tem

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         taskAdapter = new TaskAdapter(taskList);
         recyclerView.setAdapter(taskAdapter);
 
-
+        loadTasksFromFirestore(); // carregar tasks já existentes
     }
 
     public void addTask(View view) {
@@ -78,5 +79,21 @@ public class MainActivity extends AppCompatActivity {
                         // pode mostrar toast de erro
                     });
         }
+    }
+
+    public void loadTasksFromFirestore() {
+        db.collection("tasks")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    taskList.clear();
+                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                        Task task = document.toObject(Task.class);
+                        taskList.add(task);
+                    }
+                    taskAdapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e -> {
+                    e.printStackTrace();
+                });
     }
 }
